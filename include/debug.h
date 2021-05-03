@@ -1,6 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#ifndef NDEBUG
+
 #include "chunk.h"
 #include "value.h"
 
@@ -17,4 +19,5 @@ static int const_long_instr(const char* name, Chunk* chunk, int offset);
 
 /* === Displaying chunks contents === */
 
+#endif // NDEBUG
 #endif // DEBUG_H
