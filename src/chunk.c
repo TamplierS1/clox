@@ -1,7 +1,7 @@
-#include "chunk.h"
-
+#include <assert.h>
 #include <stdlib.h>
 
+#include "chunk.h"
 #include "memory.h"
 
 void chk_write_constant(Chunk* chunk, Value value, int line)
@@ -43,6 +43,8 @@ void chk_write_chunk(Chunk* chunk, uint8_t byte, int line)
 
 int chk_get_line(vec_int_t* array, int instr_index)
 {
+    assert(array->data != NULL);
+
     int count = 0;
     vec_int_t decoded_lines;
     vec_init(&decoded_lines);
@@ -84,6 +86,8 @@ static void write_lines_array(vec_int_t* array, int line)
 
 void chk_free_chunk(Chunk* chunk)
 {
+    assert(chunk->code.data != NULL);
+
     vec_deinit(&chunk->code);
     vec_deinit(&chunk->lines);
     vec_deinit(&chunk->constants);

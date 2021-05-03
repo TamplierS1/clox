@@ -1,4 +1,8 @@
+#ifndef NDEBUG
+
 #include <stdio.h>
+#include <assert.h>
+#include <stddef.h>
 
 #include "debug.h"
 #include "error.h"
@@ -6,6 +10,8 @@
 // Displays the contents of the given chunk
 void dbg_disassemble_chunk(Chunk* chunk, const char* name)
 {
+    assert(chunk->code.data != NULL);
+
     printf("== %s ==\n", name);
 
     for (int offset = 0; offset < chunk->code.length;)
@@ -19,6 +25,8 @@ void dbg_disassemble_chunk(Chunk* chunk, const char* name)
 // Displays the given instruction
 int dbg_disassemble_instruction(Chunk* chunk, int offset)
 {
+    assert(chunk->code.data != NULL);
+
     printf("%04d ", offset);
 
     // Print the source line
@@ -35,6 +43,16 @@ int dbg_disassemble_instruction(Chunk* chunk, int offset)
     uint8_t instruction = chunk->code.data[offset];
     switch (instruction)
     {
+        case OP_ADD:
+            return simple_instruction("OP_ADD", offset);
+        case OP_SUBTRACT:
+            return simple_instruction("OP_SUBTRACT", offset);
+        case OP_MULTIPLY:
+            return simple_instruction("OP_MULTIPLY", offset);
+        case OP_DIVIDE:
+            return simple_instruction("OP_DIVIDE", offset);
+        case OP_NEGATE:
+            return simple_instruction("OP_NEGATE", offset);
         case OP_CONSTANT:
             return const_instr("OP_CONSTANT", chunk, offset);
         case OP_CONSTANT_LONG:
@@ -55,6 +73,8 @@ static int simple_instruction(const char* name, int offset)
 
 static int const_instr(const char* name, Chunk* chunk, int offset)
 {
+    assert(chunk->code.data != NULL);
+
     uint8_t constant_index = chunk->code.data[offset + 1];
     printf("%-16s %4d '", name, constant_index);
     vle_print_value(chunk->constants.data[constant_index]);
@@ -64,6 +84,9 @@ static int const_instr(const char* name, Chunk* chunk, int offset)
 
 static int const_long_instr(const char* name, Chunk* chunk, int offset)
 {
+    assert(chunk->code.data != NULL);
+
+    // CONSTANT_LONG instruction takes up 3 bytes
     uint8_t byte1 = chunk->code.data[offset + 1];
     uint8_t byte2 = chunk->code.data[offset + 2];
     uint8_t byte3 = chunk->code.data[offset + 3];
@@ -74,3 +97,5 @@ static int const_long_instr(const char* name, Chunk* chunk, int offset)
     printf("'\n");
     return offset + 4;
 }
+
+#endif // NDEBUG

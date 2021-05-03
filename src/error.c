@@ -3,7 +3,7 @@
 
 #include "error.h"
 
-void err_error(ErrorType error, ...)
+void err_error(Error error, ...)
 {
     va_list args;
     va_start(args, error);

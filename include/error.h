@@ -6,12 +6,12 @@
 typedef enum {
     ERROR_UNKNOWN_UPCODE, // Pass the unknown opcode
     ERROR_FAILED_MEM_ALLOC,
-} ErrorType;
+} Error;
 
 /* === Reporting errors to the user === */
 
 // Displays an error using the provided variadic arguments.
-void err_error(ErrorType error, ...);
+void err_error(Error error, ...);
 
 /* === Reporting errors to the user === */
 
