@@ -1,8 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "vm.h"
+#include "compiler.h"
 #include "error.h"
+#include "vm.h"
 
 #ifndef NDEBUG
 #include "debug.h"
@@ -15,14 +16,11 @@ void vm_init_vm()
     vec_init(&g_vm.stack);
 }
 
-InterpreterResult vm_interpret(Chunk* chunk)
+InterpreterResult vm_interpret(const char* source)
 {
-    assert(chunk->code.data != NULL);
+    cpl_compile(source);
 
-    g_vm.chunk = chunk;
-    g_vm.ip = chunk->code.data;
-
-    return run();
+    return INTPR_OK;
 }
 
 void vm_free_vm()
@@ -32,11 +30,12 @@ void vm_free_vm()
 
 static InterpreterResult run()
 {
-#define BINARY_OP(op) \
-    do { \
+#define BINARY_OP(op)          \
+    do                         \
+    {                          \
         Value b = pop_stack(); \
         Value a = pop_stack(); \
-        push_stack(a op b); \
+        push_stack(a op b);    \
     } while (false)
 
     while (true)
@@ -81,7 +80,7 @@ static InterpreterResult run()
                 printf("\n");
                 return INTPR_OK;
             default:
-                err_error(ERROR_UNKNOWN_UPCODE, instruction);
+                err_error("Error: unknown upcode '%d'\n", instruction);
                 break;
         }
     }

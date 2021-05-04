@@ -1,6 +1,7 @@
+#include "memory.h"
+
 #include <stdlib.h>
 
-#include "memory.h"
 #include "error.h"
 
 // This function is the only one used for dynamic memory management in clox.
@@ -15,7 +16,7 @@ void* mem_reallocate(void* pointer, size_t old_size, size_t new_size)
     void* result = realloc(pointer, new_size);
     if (result == NULL)
     {
-        err_error(ERROR_FAILED_MEM_ALLOC);
+        err_error("Error: failed to allocate memory.\n");
         free(result);
         exit(1);
     }
