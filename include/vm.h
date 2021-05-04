@@ -5,20 +5,22 @@
 
 static const int STACK_MAX = 256;
 
-typedef struct {
+typedef struct
+{
     Chunk* chunk;
     uint8_t* ip;
     vec_val_t stack;
 } Vm;
 
-typedef enum {
+typedef enum
+{
     INTPR_OK,
     INTPR_COMPILE_ERROR,
     INTPR_RUNTIME_ERROR
 } InterpreterResult;
 
 void vm_init_vm();
-InterpreterResult vm_interpret(Chunk* chunk);
+InterpreterResult vm_interpret(const char* source);
 void vm_free_vm();
 
 static InterpreterResult run();
@@ -37,4 +39,4 @@ static inline uint8_t read_byte();
 static inline Value read_constant();
 static inline Value read_constant_long();
 
-#endif // VM_H
+#endif  // VM_H

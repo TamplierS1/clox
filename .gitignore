@@ -2,3 +2,4 @@ build
 .cache
 .idea
 .ccls-cache
+test_scripts

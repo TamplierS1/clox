@@ -1,10 +1,11 @@
 #ifndef NDEBUG
 
-#include <stdio.h>
+#include "debug.h"
+
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
 
-#include "debug.h"
 #include "error.h"
 
 // Displays the contents of the given chunk
@@ -30,8 +31,8 @@ int dbg_disassemble_instruction(Chunk* chunk, int offset)
     printf("%04d ", offset);
 
     // Print the source line
-    if (offset > 0 && chk_get_line(&chunk->lines, offset) == chk_get_line
-                          (&chunk->lines, offset - 1))
+    if (offset > 0 &&
+        chk_get_line(&chunk->lines, offset) == chk_get_line(&chunk->lines, offset - 1))
     {
         printf("   | ");
     }
@@ -60,7 +61,7 @@ int dbg_disassemble_instruction(Chunk* chunk, int offset)
         case OP_RETURN:
             return simple_instruction("OP_RETURN", offset);
         default:
-            err_error(ERROR_UNKNOWN_UPCODE, instruction);
+            err_error("Error: unknown upcode '%d'\n", instruction);
             return offset + 1;
     }
 }
@@ -98,4 +99,4 @@ static int const_long_instr(const char* name, Chunk* chunk, int offset)
     return offset + 4;
 }
 
-#endif // NDEBUG
+#endif  // NDEBUG
