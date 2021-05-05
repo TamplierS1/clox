@@ -33,8 +33,6 @@ void chk_init_chunk(Chunk* chunk);
 void chk_write_chunk(Chunk* chunk, uint8_t byte, int line);
 void chk_free_chunk(Chunk* chunk);
 
-static void write_lines_array(vec_int_t* array, int line);
-
 /* === Chunks manipulation ===*/
 
 #endif // CHUNK_H

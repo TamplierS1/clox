@@ -11,6 +11,15 @@
 
 Vm g_vm;
 
+static InterpreterResult run();
+
+#ifdef DEBUG_TRACE_EXECUTION
+static void trace_execution();
+#endif
+static inline uint8_t read_byte();
+static inline Value read_constant();
+static inline Value read_constant_long();
+
 void vm_init_vm()
 {
     vec_init(&g_vm.stack);
@@ -18,9 +27,22 @@ void vm_init_vm()
 
 InterpreterResult vm_interpret(const char* source)
 {
-    cpl_compile(source);
+    Chunk chunk;
+    chk_init_chunk(&chunk);
 
-    return INTPR_OK;
+    if (!cpl_compile(source, &chunk))
+    {
+        chk_free_chunk(&chunk);
+        return INTPR_COMPILE_ERROR;
+    }
+
+    g_vm.chunk = &chunk;
+    g_vm.ip = g_vm.chunk->code.data;
+
+    InterpreterResult result = run();
+
+    chk_free_chunk(&chunk);
+    return result;
 }
 
 void vm_free_vm()

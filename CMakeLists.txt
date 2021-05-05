@@ -19,7 +19,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
             -fno-optimize-sibling-calls -fsanitize=address)
     list(APPEND CXX_LINK_FLAGS -fsanitize=address -fno-omit-frame-pointer
             -fno-optimize-sibling-calls)
-    target_compile_definitions(clox PRIVATE DEBUG_TRACE_EXECUTION)
+    target_compile_definitions(clox PRIVATE DEBUG_TRACE_EXECUTION DEBUG_PRINT_CODE)
 elseif(CMAKE_BUILD_TYPE MATCHES Release)
     list(APPEND CXX_COMPILE_FLAGS -O3)
 endif()
