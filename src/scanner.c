@@ -4,11 +4,38 @@
 
 Scanner g_scanner;
 
+static Token string();
+static Token number();
+static Token identifier();
+static TokenType identifier_type();
+
+// Checks if `rest` matches the consumed characters.
+// If it does, the matched keyword's type is returned.
+// If it doesn't, TOKEN_IDENTIFIER is returned.
+static TokenType check_keyword(int start, int length, const char* rest, TokenType type);
+static bool is_digit(char c);
+static bool is_alpha(char c);
+static bool is_alnum(char c);
+static void skip_whitespace();
+static bool is_end();
+static Token make_token(TokenType type);
+// Note: the scanner does not report lexical errors.
+// Instead it creates a special TOKEN_ERROR and passes it to the parser.
+// It's the parser's job to report the error.
+static Token error_token(const char* msg);
+static char advance();
+// Consumes the next character only if it matches 'c'.
+static bool match(char c);
+static char peek();
+static char peek_next();
+static void reset_column();
+
 void scn_init_scanner(const char* source)
 {
     g_scanner.start = source;
     g_scanner.current = source;
     g_scanner.line = 1;
+    g_scanner.column = 1;
 }
 
 Token scn_scan_token()
@@ -80,7 +107,10 @@ static Token string()
     while (!is_end() && peek() != '"')
     {
         if (peek() == '\n')
+        {
             g_scanner.line++;
+            reset_column();
+        }
         advance();
     }
 
@@ -220,6 +250,7 @@ static void skip_whitespace()
             case '\n':
                 g_scanner.line++;
                 advance();
+                reset_column();
                 break;
             default:
                 return;
@@ -234,10 +265,12 @@ static bool is_end()
 
 static Token make_token(TokenType type)
 {
+    int length = (int)(g_scanner.current - g_scanner.start);
     Token token = {.type = type,
                    .start = g_scanner.start,
-                   .length = (int)(g_scanner.current - g_scanner.start),
-                   .line = g_scanner.line};
+                   .length = length,
+                   .line = g_scanner.line,
+                   .column = g_scanner.column - length};
     return token;
 }
 
@@ -248,13 +281,14 @@ static Token error_token(const char* msg)
         .start = msg,
         .length = (int)strlen(msg),
         .line = g_scanner.line,
-    };
+        .column = g_scanner.column - (int)(g_scanner.current - g_scanner.start)};
     return token;
 }
 
 static char advance()
 {
     g_scanner.current++;
+    g_scanner.column++;
     return g_scanner.current[-1];
 }
 
@@ -264,6 +298,7 @@ static bool match(char c)
         return false;
 
     g_scanner.current++;
+    g_scanner.column++;
 
     return true;
 }
@@ -278,4 +313,9 @@ static char peek_next()
     if (is_end())
         return '\0';
     return g_scanner.current[1];
+}
+
+static void reset_column()
+{
+    g_scanner.column = 1;
 }

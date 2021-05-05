@@ -1,14 +1,20 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "error.h"
 #include "chunk.h"
 #include "memory.h"
+
+const int CONSTANT_LONG_MAX = 16777215;
+const int CONSTANT_MAX = 255;
+
+static void write_lines_array(vec_int_t* array, int line);
 
 void chk_write_constant(Chunk* chunk, Value value, int line)
 {
     vec_push(&chunk->constants, value);
 
-    if (chunk->constants.length > 255)
+    if (chunk->constants.length > CONSTANT_MAX)
     {
         chk_write_chunk(chunk, OP_CONSTANT_LONG, line);
 
@@ -20,6 +26,12 @@ void chk_write_constant(Chunk* chunk, Value value, int line)
         chk_write_chunk(chunk, byte1, line);
         chk_write_chunk(chunk, byte2, line);
         chk_write_chunk(chunk, byte3, line);
+    }
+    else if (chunk->constants.length > CONSTANT_LONG_MAX)
+    {
+        err_error("Error: too many constants in one chunk (more than %d).",
+                  CONSTANT_LONG_MAX);
+        return;
     }
     else
     {
@@ -68,6 +80,15 @@ int chk_get_line(vec_int_t* array, int instr_index)
     return result;
 }
 
+void chk_free_chunk(Chunk* chunk)
+{
+    assert(chunk->code.data != NULL);
+
+    vec_deinit(&chunk->code);
+    vec_deinit(&chunk->lines);
+    vec_deinit(&chunk->constants);
+}
+
 static void write_lines_array(vec_int_t* array, int line)
 {
     // Run-length encoding of instructions' line numbers
@@ -82,13 +103,4 @@ static void write_lines_array(vec_int_t* array, int line)
         // Increment existing counter
         array->data[array->length - 1]++;
     }
-}
-
-void chk_free_chunk(Chunk* chunk)
-{
-    assert(chunk->code.data != NULL);
-
-    vec_deinit(&chunk->code);
-    vec_deinit(&chunk->lines);
-    vec_deinit(&chunk->constants);
 }
