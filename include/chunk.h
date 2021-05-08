@@ -4,20 +4,32 @@
 #include "common.h"
 #include "value.h"
 
-typedef enum {
+typedef enum
+{
     OP_ADD,
     OP_SUBTRACT,
     OP_MULTIPLY,
     OP_DIVIDE,
     OP_NEGATE,
+    OP_NOT,
+    OP_EQUAL,
+    OP_NOT_EQUAL,
+    OP_GREATER,
+    OP_GREATER_EQUAL,
+    OP_LESS,
+    OP_LESS_EQUAL,
     OP_CONSTANT,
     OP_CONSTANT_LONG,
+    OP_NIL,
+    OP_TRUE,
+    OP_FALSE,
     OP_RETURN,
 } OpCode;
 
 typedef vec_t(uint8_t) vec_byte_t;
 
-typedef struct {
+typedef struct
+{
     vec_byte_t code;
     vec_int_t lines;
     vec_val_t constants;
@@ -35,4 +47,4 @@ void chk_free_chunk(Chunk* chunk);
 
 /* === Chunks manipulation ===*/
 
-#endif // CHUNK_H
+#endif  // CHUNK_H

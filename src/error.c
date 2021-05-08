@@ -1,18 +1,12 @@
 #include <stdarg.h>
-#include <stdio.h>
+#include <assert.h>
 
 #include "error.h"
 
-void err_error(const char* format, ...)
+void err_compile_error(Token* token, const char* format, ...)
 {
-    va_list args;
-    va_start(args, format);
-    vfprintf(stderr, format, args);
-    va_end(args);
-}
+    assert(token != NULL);
 
-void err_error_at_token(Token* token, const char* msg)
-{
     fprintf(stderr, "\n[%d, %d] Error", token->line, token->column);
 
     if (token->type == TOKEN_EOF)
@@ -28,5 +22,24 @@ void err_error_at_token(Token* token, const char* msg)
         fprintf(stderr, " at '%.*s'", token->length, token->start);
     }
 
-    fprintf(stderr, ": %s\n", msg);
+    fprintf(stderr, ": ");
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+
+    fprintf(stderr, "\n");
+}
+
+void err_runtime_error(int line, const char* format, ...)
+{
+    fprintf(stderr, "\n[line %d] Error: ", line);
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+
+    fprintf(stderr, "\n");
 }
