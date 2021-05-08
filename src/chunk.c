@@ -29,8 +29,10 @@ void chk_write_constant(Chunk* chunk, Value value, int line)
     }
     else if (chunk->constants.length > CONSTANT_LONG_MAX)
     {
-        err_error("Error: too many constants in one chunk (more than %d).",
-                  CONSTANT_LONG_MAX);
+        err_runtime_error(line,
+                          "Error: too many constants in one chunk (more than %d)"
+                          ".\n",
+                          CONSTANT_LONG_MAX);
         return;
     }
     else

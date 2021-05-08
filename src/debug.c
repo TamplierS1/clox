@@ -64,10 +64,33 @@ int dbg_disassemble_instruction(Chunk* chunk, int offset)
             return const_instr("OP_CONSTANT", chunk, offset);
         case OP_CONSTANT_LONG:
             return const_long_instr("OP_CONSTANT_LONG", chunk, offset);
+        case OP_TRUE:
+            return simple_instruction("OP_TRUE", offset);
+        case OP_FALSE:
+            return simple_instruction("OP_FALSE", offset);
+        case OP_NIL:
+            return simple_instruction("OP_NIL", offset);
+        case OP_NOT:
+            return simple_instruction("OP_NOT", offset);
+        case OP_NOT_EQUAL:
+            return simple_instruction("OP_NOT_EQUAL", offset);
+        case OP_EQUAL:
+            return simple_instruction("OP_EQUAL", offset);
+        case OP_GREATER:
+            return simple_instruction("OP_GREATER", offset);
+        case OP_GREATER_EQUAL:
+            return simple_instruction("OP_GREATER_EQUAL", offset);
+        case OP_LESS:
+            return simple_instruction("OP_LESS", offset);
+        case OP_LESS_EQUAL:
+            return simple_instruction("OP_LESS_EQUAL", offset);
         case OP_RETURN:
             return simple_instruction("OP_RETURN", offset);
         default:
-            err_error("Error: unknown upcode '%d'\n", instruction);
+            err_runtime_error(chk_get_line(&chunk->lines, offset),
+                              "Error: unknown upcode "
+                              "'%d'\n",
+                              instruction);
             return offset + 1;
     }
 }

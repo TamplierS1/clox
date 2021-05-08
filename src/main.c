@@ -65,7 +65,7 @@ static char* read_file(const char* path)
     FILE* file = fopen(path, "rb");
     if (file == NULL)
     {
-        err_error("Error: failed to open file \"%s\"\n", path);
+        err_runtime_error(1, "Error: failed to open file \"%s\"\n", path);
         exit(74);
     }
 
@@ -76,14 +76,14 @@ static char* read_file(const char* path)
     char* buffer = malloc(file_size + 1);
     if (buffer == NULL)
     {
-        err_error("Error: not enough memory to read \"%s\"\n", path);
+        err_runtime_error(1, "Error: not enough memory to read \"%s\"\n", path);
         exit(74);
     }
 
     size_t bytes_read = fread(buffer, sizeof(char), file_size, file);
     if (bytes_read < file_size)
     {
-        err_error("Error: failed to read file \"%s\"\n", path);
+        err_runtime_error(1, "Error: failed to read file \"%s\"\n", path);
         exit(74);
     }
 
