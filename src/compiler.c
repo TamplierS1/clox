@@ -4,6 +4,7 @@
 #ifdef DEBUG_PRINT_CODE
 #include "debug.h"
 #endif
+#include "object.h"
 
 Parser g_parser;
 Chunk* compiling_chunk;
@@ -30,6 +31,7 @@ static void grouping();
 static void unary();
 static void binary();
 static void literal();
+static void string();
 
 // Parse any expression at the given precedence level.
 static void parse_precedence(Precedence precedence);
@@ -61,7 +63,7 @@ ParseRule g_rules[] = {
     [TOKEN_LESS]          = {NULL,     binary,   PREC_COMPARISON},
     [TOKEN_LESS_EQUAL]    = {NULL,     binary,   PREC_COMPARISON},
     [TOKEN_IDENTIFIER]    = {NULL,     NULL,   PREC_NONE},
-    [TOKEN_STRING]        = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_STRING]        = {string,     NULL,   PREC_NONE},
     [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
     [TOKEN_AND]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_CLASS]         = {NULL,     NULL,   PREC_NONE},
@@ -274,6 +276,12 @@ static void literal()
         default:
             DEBUG_ERROR("Not every case was handled.");
     }
+}
+
+static void string()
+{
+    emit_constant(OBJ_VAL(
+        vle_constant_string(g_parser.previous.start + 1, g_parser.previous.length - 2)));
 }
 
 static void parse_precedence(Precedence precedence)

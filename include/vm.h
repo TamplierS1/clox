@@ -10,6 +10,8 @@ typedef struct
     Chunk* chunk;
     uint8_t* ip;
     vec_val_t stack;
+
+    Obj* objects;
 } Vm;
 
 typedef enum
@@ -18,6 +20,8 @@ typedef enum
     INTPR_COMPILE_ERROR,
     INTPR_RUNTIME_ERROR
 } InterpreterResult;
+
+extern Vm g_vm;
 
 void vm_init_vm();
 InterpreterResult vm_interpret(const char* source);

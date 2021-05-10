@@ -4,6 +4,8 @@
 #include "compiler.h"
 #include "error.h"
 #include "vm.h"
+#include "object.h"
+#include "memory.h"
 
 #ifndef NDEBUG
 #include "debug.h"
@@ -12,7 +14,6 @@
 Vm g_vm;
 
 static InterpreterResult run();
-
 #ifdef DEBUG_TRACE_EXECUTION
 static void trace_execution();
 #endif
@@ -22,12 +23,12 @@ static inline Value read_constant_long();
 // Returns the value from the stack's top.
 static Value peek(int distance);
 static void runtime_error(const char* msg, ...);
-static bool is_false(Value value);
-static bool is_equal(Value a, Value b);
+static void concatenate();
 
 void vm_init_vm()
 {
     vec_init(&g_vm.stack);
+    g_vm.objects = NULL;
 }
 
 InterpreterResult vm_interpret(const char* source)
@@ -53,6 +54,7 @@ InterpreterResult vm_interpret(const char* source)
 void vm_free_vm()
 {
     vec_deinit(&g_vm.stack);
+    free_objects();
 }
 
 static InterpreterResult run()
@@ -89,7 +91,21 @@ static InterpreterResult run()
                 break;
             }
             case OP_ADD:
-                BINARY_OP(NUMBER_VAL, +);
+                if (IS_STRING(peek(0)) && IS_STRING(peek(1)))
+                {
+                    concatenate();
+                }
+                else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1)))
+                {
+                    double b = AS_NUMBER(pop_stack());
+                    double a = AS_NUMBER(pop_stack());
+                    push_stack(NUMBER_VAL(a + b));
+                }
+                else
+                {
+                    runtime_error("Operands must be two numbers or two strings.");
+                    return INTPR_RUNTIME_ERROR;
+                }
                 break;
             case OP_SUBTRACT:
                 BINARY_OP(NUMBER_VAL, -);
@@ -122,20 +138,20 @@ static InterpreterResult run()
                 push_stack(NIL_VAL);
                 break;
             case OP_NOT:
-                push_stack(BOOL_VAL(is_false(pop_stack())));
+                push_stack(BOOL_VAL(vle_is_false(pop_stack())));
                 break;
             case OP_NOT_EQUAL:
             {
                 Value b = pop_stack();
                 Value a = pop_stack();
-                push_stack(BOOL_VAL(!is_equal(a, b)));
+                push_stack(BOOL_VAL(!vle_is_equal(a, b)));
                 break;
             }
             case OP_EQUAL:
             {
                 Value b = pop_stack();
                 Value a = pop_stack();
-                push_stack(BOOL_VAL(is_equal(a, b)));
+                push_stack(BOOL_VAL(vle_is_equal(a, b)));
                 break;
             }
             case OP_GREATER:
@@ -229,25 +245,17 @@ static void runtime_error(const char* msg, ...)
     va_end(args);
 }
 
-static bool is_false(Value value)
+static void concatenate()
 {
-    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
-}
+    ObjString* b = AS_STRING(pop_stack());
+    ObjString* a = AS_STRING(pop_stack());
 
-static bool is_equal(Value a, Value b)
-{
-    if (a.type != b.type)
-        return false;
+    int length = b->length + a->length;
+    char* chars = ALLOCATE(char, length + 1);
+    memcpy(chars, a->chars, a->length);
+    memcpy(chars + a->length, b->chars, b->length);
+    chars[length] = '\0';
 
-    switch (a.type)
-    {
-        case VAL_BOOL:
-            return AS_BOOL(a) == AS_BOOL(b);
-        case VAL_NUMBER:
-            return AS_NUMBER(a) == AS_NUMBER(b);
-        case VAL_NIL:
-            return true;
-        default:
-            DEBUG_ERROR("Not every case was handled.");
-    }
+    ObjString* result = vle_owning_string(chars, length);
+    push_stack(OBJ_VAL(result));
 }

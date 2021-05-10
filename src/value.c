@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "value.h"
+#include "object.h"
 #include "error.h"
 
 void vle_print_value(Value value)
@@ -16,7 +17,40 @@ void vle_print_value(Value value)
         case VAL_NIL:
             printf("nil");
             break;
+        case VAL_OBJ:
+            vle_print_object(value);
+            break;
         default:
             DEBUG_ERROR("Not every error case was handled.");
+    }
+}
+
+bool vle_is_false(Value value)
+{
+    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
+bool vle_is_equal(Value a, Value b)
+{
+    if (a.type != b.type)
+        return false;
+
+    switch (a.type)
+    {
+        case VAL_BOOL:
+            return AS_BOOL(a) == AS_BOOL(b);
+        case VAL_NUMBER:
+            return AS_NUMBER(a) == AS_NUMBER(b);
+        case VAL_NIL:
+            return true;
+        case VAL_OBJ:
+        {
+            ObjString* a_str = AS_STRING(a);
+            ObjString* b_str = AS_STRING(b);
+            return a_str->length == b_str->length &&
+                   memcmp(a_str, b_str, a_str->length) == 0;
+        }
+        default:
+            DEBUG_ERROR("Not every case was handled.");
     }
 }
