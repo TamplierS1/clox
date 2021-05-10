@@ -3,3 +3,4 @@ build
 .idea
 .ccls-cache
 test_scripts
+CMakeLists.txt.user
