@@ -1,11 +1,8 @@
 #include <stdlib.h>
 
-#include "object.h"
 #include "vm.h"
 #include "error.h"
 #include "memory.h"
-
-static void free_object(Obj* object);
 
 void* mem_reallocate(void* pointer, size_t old_size, size_t new_size)
 {
@@ -36,7 +33,7 @@ void free_objects()
     }
 }
 
-static void free_object(Obj* object)
+void free_object(Obj* object)
 {
     switch (object->type)
     {

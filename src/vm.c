@@ -29,6 +29,7 @@ void vm_init_vm()
 {
     vec_init(&g_vm.stack);
     g_vm.objects = NULL;
+    htb_init(&g_vm.strings);
 }
 
 InterpreterResult vm_interpret(const char* source)
@@ -55,6 +56,7 @@ void vm_free_vm()
 {
     vec_deinit(&g_vm.stack);
     free_objects();
+    htb_free(&g_vm.strings);
 }
 
 static InterpreterResult run()
@@ -256,6 +258,14 @@ static void concatenate()
     memcpy(chars + a->length, b->chars, b->length);
     chars[length] = '\0';
 
-    ObjString* result = vle_owning_string(chars, length);
+    ObjString* result = obj_create_string(chars, length, true);
+//    Value* string = htb_get(&g_vm.strings, result);
+//    if (string != NULL)
+//    {
+//        push_stack(OBJ_VAL(string));
+//    }
+//    else
+//    {
+//    }
     push_stack(OBJ_VAL(result));
 }

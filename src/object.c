@@ -7,28 +7,28 @@
 
 #define ALLOCATE_OBJ(type, object_type) (type*)allocate_object(sizeof(type), object_type)
 
-static ObjString* allocate_string(char* chars, int length, bool is_owning);
 static Obj* allocate_object(size_t size, ObjectType type);
 
-ObjString* vle_owning_string(char* chars, int length)
+ObjString* obj_create_string(char* chars, int length, bool is_owning)
 {
-    return allocate_string(chars, length, true);
-}
+    uint32_t hash = obj_hash_string(chars, length);
 
-ObjString* vle_constant_string(char* chars, int length)
-{
-    // char* heap_chars = ALLOCATE(char, length + 1);
-    // memcpy(heap_chars, chars, length);
-    // heap_chars[length] = '\0';
-    return allocate_string(chars, length, false);
-}
+    ObjString* interned = htb_find_string(&g_vm.strings, chars, length, hash);
+    if (interned != NULL)
+    {
+        if (is_owning)
+            FREE_ARRAY(char, chars, length + 1);  // Don't forget the '\0'.
+        return interned;
+    }
 
-static ObjString* allocate_string(char* chars, int length, bool is_owning)
-{
     ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
     string->length = length;
     string->chars = chars;
     string->is_owning = is_owning;
+    string->hash = hash;
+
+    htb_add(&g_vm.strings, string, NIL_VAL);
+
     return string;
 }
 
@@ -42,7 +42,7 @@ static Obj* allocate_object(size_t size, ObjectType type)
     return object;
 }
 
-void vle_print_object(Value value)
+void obj_print_object(Value value)
 {
     switch (OBJ_TYPE(value))
     {
@@ -58,4 +58,15 @@ void vle_print_object(Value value)
         default:
             DEBUG_ERROR("Not every case was handled.");
     }
+}
+
+uint32_t obj_hash_string(const char* key, int length)
+{
+    uint32_t hash = 2166136261u;
+    for (int i = 0; i < length; i++)
+    {
+        hash ^= (uint8_t)key[i];
+        hash *= 16777619;
+    }
+    return hash;
 }
