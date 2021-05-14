@@ -18,7 +18,7 @@ void vle_print_value(Value value)
             printf("nil");
             break;
         case VAL_OBJ:
-            vle_print_object(value);
+            obj_print_object(value);
             break;
         default:
             DEBUG_ERROR("Not every error case was handled.");
@@ -45,10 +45,7 @@ bool vle_is_equal(Value a, Value b)
             return true;
         case VAL_OBJ:
         {
-            ObjString* a_str = AS_STRING(a);
-            ObjString* b_str = AS_STRING(b);
-            return a_str->length == b_str->length &&
-                   memcmp(a_str, b_str, a_str->length) == 0;
+            return AS_OBJ(a) == AS_OBJ(b);
         }
         default:
             DEBUG_ERROR("Not every case was handled.");

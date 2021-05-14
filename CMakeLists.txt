@@ -15,9 +15,9 @@ set(C_LINK_FLAGS)
 list(APPEND C_COMPILE_FLAGS -Wall -Wextra -pedantic)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-    list(APPEND C_COMPILE_FLAGS -fsanitize=address -fno-omit-frame-pointer
+    list(APPEND C_COMPILE_FLAGS -fno-omit-frame-pointer
             -fno-optimize-sibling-calls )
-    list(APPEND C_LINK_FLAGS -fsanitize=address -fno-omit-frame-pointer
+    list(APPEND C_LINK_FLAGS -fno-omit-frame-pointer
             -fno-optimize-sibling-calls)
     target_compile_definitions(clox PRIVATE DEBUG_PRINT_CODE)
 #    target_compile_definitions(clox PRIVATE DEBUG_TRACE_EXECUTION)

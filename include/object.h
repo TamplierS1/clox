@@ -21,6 +21,7 @@ struct ObjString
     int length;
     bool is_owning;  // Does it own its characters.
     char* chars;
+    uint32_t hash;
 };
 
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
@@ -33,10 +34,8 @@ static inline bool is_obj_type(Value value, ObjectType type)
     return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }
 
-// Creates a string that owns its chars.
-ObjString* vle_owning_string(char* chars, int length);
-// Creates non-owning string that points into the source code.
-ObjString* vle_constant_string(char* chars, int length);
-void vle_print_object(Value value);
+ObjString* obj_create_string(char* chars, int length, bool is_owning);
+void obj_print_object(Value value);
+uint32_t obj_hash_string(const char* key, int length);
 
 #endif  // OBJECT_H

@@ -280,8 +280,8 @@ static void literal()
 
 static void string()
 {
-    emit_constant(OBJ_VAL(
-        vle_constant_string(g_parser.previous.start + 1, g_parser.previous.length - 2)));
+    emit_constant(OBJ_VAL(obj_create_string(g_parser.previous.start + 1,
+                                            g_parser.previous.length - 2, false)));
 }
 
 static void parse_precedence(Precedence precedence)
